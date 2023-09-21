@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:fragment="main-layout(title, css, content, js)">
+<head>
+    <meta charset="UTF-8">
+    <title th:replace="${title}">Title</title>
+
+    <!-- Link google font -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;1,700&display=swap"
+          rel="stylesheet">
+
+    <!-- Link SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.28/sweetalert2.min.css"
+          integrity="sha512-IScV5kvJo+TIPbxENerxZcEpu9VrLUGh1qYWv6Z9aylhxWE4k4Fch3CHl0IYYmN+jrnWQBPlpoTVoWfSMakoKA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Link bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+          crossorigin="anonymous">
+
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- CSS -->
+    <th:block th:replace="${css} ?: ~{}"></th:block>
+</head>
+<body>
+    <!--content-->
+    <th:block th:replace="${content} ?: ~{}"></th:block>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Link bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+            crossorigin="anonymous"></script>
+
+    <!-- Link SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.28/sweetalert2.min.js"
+            integrity="sha512-CyYoxe9EczMRzqO/LsqGsDbTl3wBj9lvLh6BYtXzVXZegJ8VkrKE90fVZOk1BNq3/9pyg+wn+TR3AmDuRjjiRQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- Custom SweetAlert -->
+    <script>
+        const Notification = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+        });
+
+        const Confirm = Swal.mixin({
+            position: 'top',
+            showCancelButton: true,
+            reverseButtons: true,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            }
+        })
+    </script>
+
+    <!--js-->
+    <th:block th:replace="${js} ?: ~{}"></th:block>
+</body>
+</html>

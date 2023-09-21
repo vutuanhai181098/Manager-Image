@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{/layout/layout :: main-layout(~{:: title}, ~{}, ~{:: #content}, ~{})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách User</title>
+</head>
+<body>
+    <th:block id="content">
+        <div class="container mt-5">
+            <h1 class="mb-4">Danh sách user</h1>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Họ và tên</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${userList}">
+                    <th scope="row" th:text="${user.id}">1</th>
+                    <td th:text="${user.name}">Nguyễn Văn A</td>
+                    <td><a th:href="@{/users/{id}/files (id = ${user.id})}">Xem chi tiết</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,41 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+}
+
+a {
+    text-decoration: none;
+}
+
+.table {
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.table thead th {
+    color: #fff;
+    background-color: #009879;
+}
+
+
+.table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+}
+
+.table tbody a:hover {
+    text-decoration: underline;
+    color: #895C79;
+}
+
+.btn:hover {
+    opacity: 70%;
+    transition: .5s;
+}

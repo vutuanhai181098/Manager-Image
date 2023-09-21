@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-layout(~{:: title}, ~{:: #css}, ~{:: #content}, ~{:: #js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách File</title>
+
+    <th:block id="css">
+        <style>
+            img {
+                width: 300px;
+                height: 300px;
+                object-fit: contain;
+            }
+            h4 {
+                font-style: italic;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<th:block id="content">
+    <div class="container mt-5">
+        <h1>Danh sách file</h1>
+        <form id="form">
+            <label for="file-input" class="btn btn-warning my-3">Tải lên
+                <input type="file" id="file-input" class="d-none">
+            </label>
+        </form>
+        <div class="render-file">
+            <h4 class="d-none empty-message text-body-tertiary">Danh sách ảnh trống.</h4>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Thể loại</th>
+                    <th scope="col">Ngày tải lên</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="file : ${fileList}" th:id="|file-${file.id}|">
+                    <th scope="row" th:text="${file.id}">1</th>
+                    <td th:text="${file.type}">image/png</td>
+                    <td th:text="${#temporals.format(file.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td><a th:onclick="|getImage(${file.id})|" href="#" data-bs-toggle="modal" data-bs-target="#modal-image">Xem chi tiết</a>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger" th:onclick="|deleteFile(${file.id})|">Xóa</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--  Modal ảnh  -->
+    <div class="modal fade" id="modal-image" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="image-container my-4 text-center">
+                        <img id="preview-image" src="" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block id="js">
+    <script th:inline="javascript">
+        const userId = [[${userId}]];
+        const fileList = [[${fileList}]];
+        let totalFile = fileList.length;
+        const emptyMessage = document.querySelector('.empty-message');
+        const tableEl = document.querySelector('.table');
+        function isEmpty(totalFile){
+            if(totalFile <= 0){
+                emptyMessage.classList.remove('d-none');
+                tableEl.classList.add('d-none');
+            } else {
+                emptyMessage.classList.add('d-none');
+                tableEl.classList.remove('d-none');
+            }
+        }
+        <!--  Upload ảnh  -->
+        const fileInputEl = document.getElementById('file-input');
+        const formEL = document.getElementById('form');
+        fileInputEl.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const res = await axios.post(`/api/users/${userId}/files`, formData);
+                if (res.status === 200) {
+                    const file = res.data;
+                    Notification.fire({
+                        icon: 'success',
+                        title: 'Tải lên thành công',
+                    }).then(() => {
+                        isEmpty(++totalFile);
+                        const tableBody = document.querySelector('tbody');
+                        tableBody.insertAdjacentHTML("afterbegin", `
+                                <tr id="file-${file.id}">
+                                    <th scope="row">${file.id}</th>
+                                    <td>${file.type}</td>
+                                    <td>${formatDateTime(file.createdAt)}</td>
+                                    <td><a class="preview-image" onclick="getImage(${file.id})" href="#" data-bs-toggle="modal" data-bs-target="#modal-image">Xem chi tiết</a></td>
+                                    <td><button class="btn btn-danger" onclick="deleteFile(${file.id})">Xóa</button></td>
+                                </tr>
+                            `)
+                        // Reset lại form input.
+                        formEL.reset();
+                    })
+                }
+            } catch (err) {
+                console.log(err)
+            }
+        });
+
+        // format date time to dd/MM/yyyy HH:mm
+        function formatDateTime(dateTime){
+            const date = new Date(dateTime);
+            const day = `0${date.getDate()}`.slice(-2);
+            const month = `0${date.getMonth() + 1}`.slice(-2);
+            const year = `${date.getFullYear()}`;
+            const hour = `0${date.getHours()}`;
+            const minute = `${date.getMinutes()}`
+            return `${day}/${month}/${year} ${hour}:${minute}`;
+        }
+
+        <!--  Xóa ảnh  -->
+        function deleteFile(id) {
+            Confirm.fire({
+                title: 'Bạn có muốn xóa file này không?',
+                icon: 'warning',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy bỏ',
+            }).then((result) => {
+                if(result.isConfirmed){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã xóa thành công!'
+                    })
+                    fetch(`/api/v1/files/${id}`, {
+                        method: 'DELETE'
+                    })
+                        .then(res => {
+                            if (res.ok) {
+                                const currentTrEl = document.getElementById(`file-${id}`);
+                                currentTrEl.parentElement.removeChild(currentTrEl);
+                                isEmpty(--totalFile);
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
+            })
+        }
+
+        <!--  Xem ảnh  -->
+        const previewImageEl = document.getElementById('preview-image');
+        function getImage(id) {
+            fetch(`/api/v1/files/${id}`, {
+                method: 'GET'
+            })
+                .then(res => {
+                    if(res.status === 200){
+                        previewImageEl.src = res.url;
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+        isEmpty(totalFile);
+    </script>
+</th:block>
+</body>
+</html>
